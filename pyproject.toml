@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "pengent"
+version = "1.2.1"
+description = "Genaral AI Angent Framework for Python"
+authors = [
+    { name = "ryoh Ya", email = "dev.p.ry.yamafuji@gmail.com" },
+    { name = "Pengent", email = "ai.pengent@gmail.com" }
+]
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.8"
+dependencies = [
+"requests",
+"openai>=1.71.0",
+"python-dotenv>=1.0.1",
+"pydantic==2.12.4",
+"markdown>=3.7",
+"pdfkit==1.0.0",
+"redis>=7.1.0",
+"sqlalchemy>=2.0.45",
+"mcp==1.10.1"
+
+]
+[tool.setuptools]
+package-dir = { "" = "src" }
+[tool.setuptools.packages.find]
+where = ["src"]

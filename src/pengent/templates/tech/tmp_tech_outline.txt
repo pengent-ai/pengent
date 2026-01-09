@@ -1,0 +1,89 @@
+# [△△△] ○○ドメイン アウトライン(ハブ)
+
+## このページの目的
+
+(領域の全体像を素早く把握し、詳細記事へ遷移するためのハブ。対象範囲と想定読者を明記)
+
+- 対象範囲：
+- 想定読者：アーキテクト / アプリ開発 / SRE / PM
+- 最終更新：YYYY-MM-DD
+
+---
+
+## 概要
+
+(概要を記載する)
+
+
+## 全体アーキテクチャ(概観)
+
+(記載ができるのならPlantUMLを利用して全体図を記載する)
+
+```plantuml
+@startuml
+skinparam componentStyle rectangle
+rectangle "Client" {
+  [Web App]
+  [Mobile App]
+}
+rectangle "Backend" {
+  [API(FastAPI)]
+}
+rectangle "Data" {
+  [RDB]
+  [Redis/KV]
+  [Object Storage]
+}
+[Web App] --> [API(FastAPI)]
+[Mobile App] --> [API(FastAPI)]
+[API(FastAPI)] --> [RDB]
+[API(FastAPI)] --> [Object Storage]
+@enduml
+```
+
+## 主要ユースケース & フロー
+
+(記載ができるのならPlantUMLを利用して処理フローを記載する)
+
+### データを取得する
+
+```plantuml
+@startuml
+actor User
+participant Web as "Web/Mobile"
+participant API as "API(FastAPI)"
+database DB as "RDB"
+collections KV as "Redis/KV"
+
+User -> Web: 画面表示要求
+Web -> API: GET /items (Bearer Token)
+API -> KV: キャッシュ参照
+alt キャッシュヒット
+  KV --> API: items
+else キャッシュミス
+  API -> DB: SELECT items
+  DB --> API: items
+  API -> KV: SET items(期限付き)
+end
+API --> Web: 200 OK (items)
+Web --> User: 一覧表示
+@enduml
+```
+
+---
+
+## 用語集 / 決定ログ
+用語集：略語・用語を1行説明で
+
+ADR(Architectural Decision Record)：主要な意思決定の履歴リンク
+
+
+---
+
+## 関連リンク(ハブ)
+
+* 比較記事(選定)：[リンク]
+* 内部ノウハウ(セットアップ/使い方)：[リンク]
+* 運用・トラブルシュート：[リンク]
+* リポジトリ / IaC / CI/CD：各リンク
+

@@ -1,0 +1,19 @@
+requests
+python-dotenv>=1.0.1
+pydantic==2.12.4
+
+# Database and Session Management
+redis>=7.1.0
+sqlalchemy>=2.0.45
+
+# LLM Interface 
+openai>=1.71.0
+tiktoken==0.9.0
+
+# PDF Docs
+markdown>=3.7
+pdfkit>=1.0.0
+# Tools
+mcp==1.10.1
+
+

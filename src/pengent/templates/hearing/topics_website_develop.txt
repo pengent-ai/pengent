@@ -1,0 +1,11 @@
+[
+    {"name": "サイト作成の目的", "constraint": "WEBサイトを作成する目的を明確にするためのヒアリング項目です。", "required": true},
+    {"name": "サイトの種類", "constraint": "WEBサイトの種類(コーポレートサイト、ECサイト、ブログなど)を特定するためのヒアリング項目です。", "required": true},
+    {"name": "コンテンツの内容", "constraint": "WEBサイトに掲載するコンテンツの内容を把握するためのヒアリング項目です。", "required": true},
+    {"name": "ターゲットユーザー", "constraint": "WEBサイトのターゲットとなるユーザー層を特定するためのヒアリング項目です。", "required": true},
+    {"name": "競合サイト", "constraint": "競合となるWEBサイトを把握するためのヒアリング項目です。", "required": true},
+    {"name": "必要な機能", "constraint": "WEBサイトに必要な機能や要素を明確にするためのヒアリング項目です。", "required": true},
+    {"name": "デザインの好み", "constraint": "WEBサイトのデザインに関する好みや要望を把握するためのヒアリング項目です。", "required": true},
+    {"name": "予算とスケジュール", "constraint": "WEBサイト制作に関する予算とスケジュールを確認するためのヒアリング項目です。", "required": true}
+]
+

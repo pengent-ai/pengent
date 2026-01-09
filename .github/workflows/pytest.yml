@@ -1,0 +1,99 @@
+name: Python Test
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      # - develop
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - '.github/workflows/pytest.yml'
+      - 'requirements.txt'
+      - 'requirements-dev.txt'
+jobs:
+  python-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        id: installDependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Run Python Test
+        id: runPyTest
+        run: |
+          pytest --junitxml=pytest.xml --cov-report term-missing --cov=src tests/ | tee pytest-coverage.txt
+
+      - name: Coverage Report
+        id: CoverageReport
+        if: success()  # テスト成功時のみ実行
+        run: |
+          coverage-badge -o .coverage.svg
+          python - <<EOF
+          from scripts.generate_coverage import GenerateCoverage
+          generate_coverage = GenerateCoverage()
+          generate_coverage.save_table()
+          EOF
+
+      - name: Generate coverage-report Branch AND README.md
+        id: generateCoverageReportBranch
+        if: success()  # テスト成功時のみ実行
+        run: |
+          #  coverage-report ブランチが存在しない場合は作成 あればチェックアウト
+          if git ls-remote --exit-code origin coverage-report; then
+            echo "coverage-report branch exists"
+            git fetch origin coverage-report:coverage-report
+            git checkout -B coverage-report origin/coverage-report          
+          else
+            echo "coverage-report branch does not exist"
+            git checkout --orphan coverage-report
+            git rm -rf .  # すべてのファイルを削除
+          fi
+          ls -l         
+
+
+
+      - name: Update Readme
+        id: updateReadme
+        run: |
+          ls -l         
+          mv .coverage.svg  coverage.svg
+          echo "# Pytest Report" > README.md
+          echo "" >> README.md
+          echo "![test](coverage.svg)" >> README.md
+          echo "" >> README.md
+          cat coverage_table.md >> README.md
+          cat README.md
+
+      - name: Check files before upload
+        id: checkFiles
+        run: ls -l README.md coverage.svg
+
+      - name: Commit Test Report To coverage-report Branch
+        id: commitTestReport
+        if: success()  # テスト成功時のみ実行
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add README.md coverage.svg
+
+          # 変更があるかどうか確認(ステージング領域)
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update coverage report"
+            git push https://actions-bot:${{ secrets.CICD_GITEA_TOKEN }}@gitea.pglikers.com/ai-program/pengent coverage-report --force
+          fi
+

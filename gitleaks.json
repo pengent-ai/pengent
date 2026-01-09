@@ -1,0 +1,22 @@
+[
+ {
+  "RuleID": "generic-api-key",
+  "Description": "Detected a Generic API Key, potentially exposing access to various services and sensitive operations.",
+  "StartLine": 45,
+  "EndLine": 45,
+  "StartColumn": 5,
+  "EndColumn": 60,
+  "Match": "access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"",
+  "Secret": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "File": "example/utility/sample2.txt",
+  "SymlinkFile": "",
+  "Commit": "7971e2c27523f7660df35533d525da8712ed867d",
+  "Entropy": 4.419391,
+  "Author": "ry.yamafuji",
+  "Email": "ry.yamafuji@gmail.com",
+  "Date": "2025-08-22T12:03:13Z",
+  "Message": "エージェント周りを最適化する",
+  "Tags": [],
+  "Fingerprint": "7971e2c27523f7660df35533d525da8712ed867d:example/utility/sample2.txt:generic-api-key:45"
+ }
+]

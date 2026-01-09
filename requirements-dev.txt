@@ -1,0 +1,13 @@
+# testing tools
+pytest
+pytest-cov
+pytest-asyncio
+coverage-badge
+httpx
+
+# Linting tool
+ruff==0.14.7
+# Docs
+sphinx
+sphinx-rtd-theme
+autodoc

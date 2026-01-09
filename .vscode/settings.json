@@ -1,0 +1,14 @@
+{
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "python.analysis.extraPaths": [
+        "./tests"
+    ],
+
+    // 保存時に自動フォーマットを有効化
+    // "editor.formatOnSave": true,
+
+}

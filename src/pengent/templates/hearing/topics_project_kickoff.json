@@ -1,0 +1,13 @@
+[
+    {"name": "目的", "constraint": "プロジェクトの目的や背景を明確にするためのヒアリング項目です。", "required": true},
+    {"name": "プロジェクト名", "constraint": "まだ決められてなければ目的などから提案してください", "required": true},
+    {"name": "期間", "constraint": "プロジェクトの期間を明確にするためのヒアリング項目です。", "required": true},
+    {"name": "公開範囲", "constraint": "特定のユーザーやグループに制限される場合は、その範囲を明確にすることが重要です。", "required": false},
+    {"name": "機密区分", "constraint": "プロジェクトの機密性を明確にするためのヒアリング項目です。(例: 社外秘、社内向け)", "required": false},
+    {"name": "スコープ", "constraint": "プロジェクトのスコープを明確にするためのヒアリング項目です", "required": false}
+]
+
+
+
+
+

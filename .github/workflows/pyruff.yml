@@ -1,0 +1,66 @@
+name: Python Lint with Ruff
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+      - 'ruff.toml'
+      - 'requirements.txt'
+      - 'requirements-dev.txt'
+
+jobs:
+  python-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        id: installDependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Check Initer
+        id: checkIniter
+        run: |
+          echo "Running Ruff Lint Check..."
+          python -m ruff check . --exit-zero --no-cache --output-format json --output-file ruff-report.json
+          echo "Ruff Lint Check completed. ruff-report.json"
+
+      - name: Generate Linter Report
+        id: generateLinterReport
+        run: |
+          python scripts/generate_linter.py
+
+
+      - name: pull_request message with Ruff Lint results
+        id: prMessageRuffLint
+        run: |
+          # イベントがプルリクエストの場合はPRにコメントを追加する
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "Posting Ruff Lint results to Pull Request..."
+            curl -v -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: token ${{ secrets.GITEA_TOKEN }}" \
+            -d @lint-result.json \
+            ${{ gitea.server_url }}/api/v1/repos/${{ gitea.repository }}/issues/${{ github.event.pull_request.number }}/comments
+          else
+            echo "Not a pull request event."
+            echo "Ruff Lint results:"
+            echo "-------------------"
+            cat lint-result.md
+            echo "-------------------"
+            echo "No PR detected. Skipping API comment."
+          fi

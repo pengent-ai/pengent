@@ -1,0 +1,22 @@
+# LLM interface
+llama_cpp_python>=0.3.8
+
+# creator
+modal==1.1.1
+
+# vector
+numpy
+faiss-cpu==1.11.0
+qdrant_client==1.15.0
+
+## local embeddings
+sentence_transformers==4.1.0
+
+# markdown parser
+mistletoe==1.4.0
+# pdf parser
+pdfplumber==0.11.7
+# Web parser
+beautifulsoup4==4.13.4
+playwright==1.52.0
+# need `playwright install`

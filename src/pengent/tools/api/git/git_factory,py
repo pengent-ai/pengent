@@ -1,0 +1,16 @@
+from .api_git_base import ApiGitBase  
+from .api_gitea import ApiGitea  
+
+
+class ApiGitFactory:
+    """
+    Gitファクトリークラス
+    """
+    def create(name: str, **kwargs) -> ApiGitBase:
+
+        if name == "github":
+            pass
+        elif name == "gitea":
+            return ApiGitea(**kwargs)
+        elif name == "gitlab":
+            pass

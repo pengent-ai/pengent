@@ -1,0 +1,34 @@
+
+# Changelog
+
+## [1.2.1] - 2026-01-07
+
+### Added
+- Artifact 機構を追加 (artifact / artifact_service: in-memory, storage)
+- Policy / Rule / Action フレームワークを追加 (各種 Policy と Rule を実装)
+- Worker 基盤を追加 (worker_base / tool 呼び出し worker など)
+- Categorizer ユーティリティを追加
+
+### Changed
+- LLM 周辺の型定義を再編 (llm_message / llm_response を llm 配下へ整理)
+- OpenAI / Anthropic / Gemini / OpenRouter 等の LLM クライアント実装を更新
+- SessionService / MessageMemory / Storage 周辺の構成を更新
+
+### Removed
+- 旧 `type/llm_message.py` を廃止 (新しい llm 配下へ移行)
+
+### Breaking Changes (要確認)
+- `pengent.type.*` の import パス変更により、既存コードの import 修正が必要な可能性があります
+
+---
+
+## 1.2.0-dev
+
+### Function
+
+バージョンの`1.2.0`より責任範囲を明確にするため
+LLMとエージェントの機能を絞りました。
+
+* アダプタ関連機能を削除しました。
+* タスク関連機能を削除しました、
+* Agentのステータス管理はセッションクラス(Session)に委任しました。
