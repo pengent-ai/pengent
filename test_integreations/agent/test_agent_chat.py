@@ -6,16 +6,16 @@ from pengent.type.agent.agent_enum import AgentSendOutput
 class TestAgentChatIntegration:
     """AgentChatの実際のAPI送信を伴うインテグレーションテスト"""
 
-    def test_agent_run_and_send(self):
+    async def test_agent_run_and_send(self):
         """基本的なrun()とsend()のテスト"""
         agent = AgentChat()
-        output: AgentSendOutput = agent.send("こんにちは！")
+        output: AgentSendOutput = await agent.send("こんにちは！")
 
         # Assert
         assert output is not None
         assert hasattr(output, "content") or hasattr(output, "message")
 
-    def test_agent_run_and_send_with_session(self):
+    async def test_agent_run_and_send_with_session(self):
         """メッセージメモリを使ったテスト"""
         # Arrange
         agent = AgentChat()
@@ -23,10 +23,10 @@ class TestAgentChatIntegration:
             session_id="test_session_001",
             user_id="test_user_001",
         )
-        output1: AgentSendOutput = agent.run(
+        output1: AgentSendOutput = await agent.run(
             session=session, input="今日は天気がいいですね"
         )
-        output2: AgentSendOutput = agent.run(
+        output2: AgentSendOutput = await agent.run(
             session=session, input="私の前の質問は何でしたか？"
         )
 

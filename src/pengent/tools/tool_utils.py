@@ -1,7 +1,9 @@
 import importlib
+import inspect
 from types import ModuleType
 from typing import Any, Callable, Optional, Union
 from functools import update_wrapper
+
 from ..type.tool.tool_enum import (
     ToolUnion,
     ToolBase,
@@ -46,7 +48,7 @@ class ToolUtils:
         return output
 
     @staticmethod
-    def execute_tool(
+    async def execute_tool(
         tool: ToolBase,
         parguments: dict,
         *,
@@ -57,10 +59,14 @@ class ToolUtils:
 
         if isinstance(tool, FunctionTool):
             if tool.has_tool_context():
-                parguments["tool_context"] = ToolContext.create(context)
-            return tool.run(**kwargs)
+                kwargs["tool_context"] = ToolContext.create(context)
 
-        return tool.run(**kwargs)
+        result = tool.run(**kwargs)
+        if inspect.iscoroutine(result):
+            result = await result
+        return result
+
+
 
 
 def function_tool(fn: Callable) -> "FunctionTool":

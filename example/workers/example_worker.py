@@ -1,5 +1,6 @@
 import sys
 import os
+import asyncio
 from datetime import datetime
 
 sys.path.append(
@@ -46,18 +47,18 @@ def get_datetime(query: str):
     return f"{query}の日時は{now.strftime('%Y-%m-%d %H:%M:%S')}です"
 
 
-def example_worker_greet_run_and_send():
+async def example_worker_greet_run_and_send():
     # ワーカーの初期化
     worker = WorkerGreet()
     session = Session(
         session_id="example_worker_session_001",
         user_id="example_user_001",
     )
-    output1: AgentSendOutput = worker.run(session, input="こんにちは！")
+    output1: AgentSendOutput = await worker.run(session, input="こんにちは！")
     logger.info(f"Worker Output: {output1.message}")
 
 
-def example_worker_call_tool_run_and_send():
+async def example_worker_call_tool_run_and_send():
     # ワーカーの初期化
     worker = WorkerCallTool(
         tools=[
@@ -70,8 +71,8 @@ def example_worker_call_tool_run_and_send():
         user_id="example_user_001",
     )
 
-    def run_worker(worker: WorkerCallTool, session: Session, input: str):
-        output: AgentSendOutput = worker.run(session, input=input)
+    async def run_worker(worker: WorkerCallTool, session: Session, input: str):
+        output: AgentSendOutput = await worker.run(session, input=input)
         print(output.message)
         logger.info(f"State delta:{output.context.get('state_delta')}")
         if "state_delta" in output.context:
@@ -79,18 +80,18 @@ def example_worker_call_tool_run_and_send():
                 session.state, output.context["state_delta"]
             )
 
-    run_worker(worker, session, "こんにちはツールを使いたいです。")
+    await run_worker(worker, session, "こんにちはツールを使いたいです。")
     input("-- Press Enter to continue --")
-    run_worker(worker, session, "queryは東京でお願いします")
+    await run_worker(worker, session, "queryは東京でお願いします")
     input("-- Press Enter to continue --")
-    run_worker(worker, session, "やっぱりqueryは大阪でお願いします")
+    await run_worker(worker, session, "やっぱりqueryは大阪でお願いします")
     input("-- Press Enter to continue --")
-    run_worker(worker, session, "はい")
+    await run_worker(worker, session, "はい")
 
     logger.info("-- Final Session State --")
     logger.info(f"Session:{session.state}")
 
 
 if __name__ == "__main__":
-    # example_worker_greet_run_and_send()
-    example_worker_call_tool_run_and_send()
+    # asyncio.run(example_worker_greet_run_and_send())
+    asyncio.run(example_worker_call_tool_run_and_send())

@@ -84,38 +84,38 @@ def test_set_llm_client(agent, mock_llm):
 # ===== メッセージ送信のテスト =====
 
 
-def test_send_with_string_input(agent):
+async def test_send_with_string_input(agent):
     """文字列入力でのメッセージ送信テスト"""
-    result = agent.send("こんにちは")
+    result = await agent.send("こんにちは")
     assert isinstance(result, AgentSendOutput)
     assert result.message == "こんにちは"
 
 
-def test_send_with_dict_input(agent):
+async def test_send_with_dict_input(agent):
     """辞書入力でのメッセージ送信テスト"""
-    result = agent.send({"content": "こんにちは"})
+    result = await agent.send({"content": "こんにちは"})
     assert isinstance(result, AgentSendOutput)
     assert result.message == "こんにちは"
 
 
-def test_send_with_agent_send_input(agent):
+async def test_send_with_agent_send_input(agent):
     """AgentSendInput入力でのメッセージ送信テスト"""
     input_data = AgentSendInput(content="こんにちは")
-    result = agent.send(input_data)
+    result = await agent.send(input_data)
     assert isinstance(result, AgentSendOutput)
     assert result.message == "こんにちは"
 
 
-def test_send_with_session(agent, session):
+async def test_send_with_session(agent, session):
     """セッション付きメッセージ送信テスト"""
-    result = agent.send("こんにちは", session=session)
+    result = await agent.send("こんにちは", session=session)
     assert isinstance(result, AgentSendOutput)
     assert result.message == "こんにちは"
 
 
-def test_send_creates_session_if_none(agent):
+async def test_send_creates_session_if_none(agent):
     """セッションがない場合に自動作成されるテスト"""
-    result = agent.send("こんにちは", session=None)
+    result = await agent.send("こんにちは", session=None)
     assert isinstance(result, AgentSendOutput)
 
 
@@ -177,20 +177,20 @@ def test_get_value_for_kwargs(agent):
 # ===== エラーハンドリングのテスト =====
 
 
-def test_send_with_llm_error(agent, mock_llm):
+async def test_send_with_llm_error(agent, mock_llm):
     """LLMエラー時のハンドリングテスト"""
     mock_llm.request.side_effect = Exception("LLM Error")
 
     with pytest.raises(Exception) as exc_info:
-        agent.send("こんにちは")
+        await agent.send("こんにちは")
     assert "LLM Error" in str(exc_info.value)
 
 
-def test_parse_error_with_retry(agent, mock_llm):
+async def test_parse_error_with_retry(agent, mock_llm):
     """パースエラー時のリトライテスト"""
     # パースに失敗するレスポンスを設定
     agent.params["retry_max_count"] = 2
-    agent.params["retry_delay_sec"] = 0.1
+    agent.params["retry_delay_sec"] = 0
     agent.format = "application/json"  # JSON形式に設定
 
     response_fail = Mock(spec=LLMResponse)
@@ -209,14 +209,14 @@ def test_parse_error_with_retry(agent, mock_llm):
         {"message": "success after retry"},
     ]
 
-    result = agent.send("こんにちは")
+    result = await agent.send("こんにちは")
     assert result.message == "success after retry"
 
 
 # ===== メッセージコールバックのテスト =====
 
 
-def test_message_callback(agent):
+async def test_message_callback(agent):
     """メッセージコールバックのテスト"""
     callback_called = {"called": False, "output": None}
 
@@ -225,7 +225,7 @@ def test_message_callback(agent):
         callback_called["output"] = output
 
     agent.message_callback = callback
-    result = agent.send("こんにちは")
+    result = await agent.send("こんにちは")
 
     assert callback_called["called"] is True
     assert callback_called["output"] == result
@@ -234,8 +234,8 @@ def test_message_callback(agent):
 # ===== runメソッドのテスト =====
 
 
-def test_run_method(agent, session):
+async def test_run_method(agent, session):
     """runメソッドのテスト"""
-    result = agent.run(session, "こんにちは")
+    result = await agent.run(session, "こんにちは")
     assert isinstance(result, AgentSendOutput)
     assert result.message == "こんにちは"

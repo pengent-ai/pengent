@@ -1,5 +1,6 @@
 import sys
 import os
+import asyncio
 
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "src"))
@@ -30,7 +31,7 @@ mcp_tools = McpToolPackage.create_mcp_stdio(
 )
 
 
-def example_agent_open_ai_with_tool():
+async def example_agent_open_ai_with_tool():
     # LLMクライアントの初期化
     agent = AgentBase(
         name="ExampleAgentOpenAIWithMCP",
@@ -54,13 +55,13 @@ def example_agent_open_ai_with_tool():
         session_id="example_session_003",
         user_id="example_user_003",
     )
-    output1: AgentSendOutput = agent.run(
+    output1: AgentSendOutput = await agent.run(
         session, input="私のお名前は太郎です"
     )
     logger.info(f"Agent Output1 : {output1}")
     print(output1.to_dict())
 
-def example_agent_anthropic_with_tool():
+async def example_agent_anthropic_with_tool():
     # LLMクライアントの初期化
     agent = AgentBase(
         name="ExampleAgentAnthropicWithMCP",
@@ -84,13 +85,13 @@ def example_agent_anthropic_with_tool():
         session_id="example_session_003",
         user_id="example_user_003",
     )
-    output1: AgentSendOutput = agent.run(
+    output1: AgentSendOutput = await agent.run(
         session, input="私のお名前は太郎です"
     )
     logger.info(f"Agent Output1 : {output1}")
     print(output1.to_dict())
 
-def example_agent_gemini_with_tool():
+async def example_agent_gemini_with_tool():
     # LLMクライアントの初期化
     agent = AgentBase(
         name="ExampleAgentGeminiWithMCP",
@@ -114,14 +115,14 @@ def example_agent_gemini_with_tool():
         session_id="example_session_003",
         user_id="example_user_003",
     )
-    output1: AgentSendOutput = agent.run(
+    output1: AgentSendOutput = await agent.run(
         session, input="私のお名前は太郎です"
     )
     logger.info(f"Agent Output1 : {output1}")
     print(output1.to_dict())
 
 
-def example_agent_open_router_with_tool():
+async def example_agent_open_router_with_tool():
     # LLMクライアントの初期化
     agent = AgentBase(
         name="ExampleAgentOpenRouterWithMCP",
@@ -144,7 +145,7 @@ def example_agent_open_router_with_tool():
         session_id="example_session_003",
         user_id="example_user_003",
     )
-    output1: AgentSendOutput = agent.run(
+    output1: AgentSendOutput = await agent.run(
         session, input="私のお名前は太郎です"
     )
     logger.info(f"Agent Output1 : {output1}")
@@ -153,7 +154,7 @@ def example_agent_open_router_with_tool():
 
 
 if __name__ == "__main__":
-    # example_agent_open_ai_with_tool()
-    # example_agent_anthropic_with_tool()
-    # example_agent_gemini_with_tool()
-    example_agent_open_router_with_tool()
+    # asyncio.run(example_agent_open_ai_with_tool())
+    # asyncio.run(example_agent_anthropic_with_tool())
+    # asyncio.run(example_agent_gemini_with_tool())
+    asyncio.run(example_agent_open_router_with_tool())

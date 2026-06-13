@@ -46,4 +46,3 @@ class AgentCoder(AgentBase):
                 ],
             }
         super().__init__("スニペット用コーディング特化エージェント", llm_client, params)
-        self.set_tools(tabs=["coder"])

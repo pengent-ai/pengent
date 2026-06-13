@@ -1,6 +1,28 @@
 
 # Changelog
 
+## [1.2.2] - 2026-06-14
+
+### Added
+- `Runner.run_async()` を追加 — エージェントを非同期で実行するメソッド
+- 連続ツール呼び出しのテスト (`test_agent_consecutive_tool_calls.py`) を追加
+- pytest の `asyncio_mode = "auto"` 設定を追加
+
+### Changed
+- `AgentBase.run()` / `send()` / `receive_message()` を非同期メソッド (`async def`) に変更
+- `WorkerBase` のコア処理を非同期化
+- `tool_utils` のファンクション呼び出しを非同期化
+- `Runner.run()` を `asyncio.run()` による同期ラッパーに変更 (既存 API との後方互換を維持)
+- ツール呼び出しをループ処理に変更し、`max_tool_call_count`（デフォルト: 10）まで繰り返し実行可能に
+- `ToolContext.session` プロパティを追加し、`session.id` 経由でセッション ID へアクセスできるよう ADK との親和性を向上
+- Python 要件を `>=3.8` から `>=3.10` に引き上げ
+
+### Breaking Changes
+- `AgentBase.run()` / `send()` / `receive_message()` が `async` になったため、直接呼び出す場合は `await` または `asyncio.run()` が必要
+- Python 3.8 / 3.9 は非サポートになりました
+
+---
+
 ## [1.2.1] - 2026-01-07
 
 ### Added

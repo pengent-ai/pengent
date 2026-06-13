@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import Mock
+from unittest.mock import Mock, AsyncMock
 from pengent.core.runners.runner import Runner
 from pengent.agents.agent_base import AgentBase
 from pengent.core.sessions.session_service.in_memory_session_service import (
@@ -27,7 +27,7 @@ class TestRunner:
         output.message = "Test response"
         output.context = {}
 
-        agent.run.return_value = output
+        agent.run = AsyncMock(return_value=output)
         return agent
 
     @pytest.fixture

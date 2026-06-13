@@ -119,7 +119,7 @@ def test_add_multiple_tools(agent):
     assert agent.tools[1] == tool2
 
 
-def test_set_tools_with_list(agent, session):
+async def test_set_tools_with_list(agent, session):
     """runメソッドでツールが正規化される"""
     tool1 = MockTool(name="tool1")
     tool2 = MockTool(name="tool2")
@@ -133,7 +133,7 @@ def test_set_tools_with_list(agent, session):
     response.is_message.return_value = True
     agent.llm_client.request.return_value = response
 
-    agent.run(session, "test")
+    await agent.run(session, "test")
 
     # ツール設定が行われたか確認
     assert agent.llm_client.tools is not None
@@ -178,25 +178,25 @@ def test_duplicate_tool_names_error():
 # ===== ツール実行のテスト =====
 
 
-def test_execute_tool(agent, mock_llm):
+async def test_execute_tool(agent, mock_llm):
     """ツール実行テスト"""
     tool = MockTool(name="test_tool")
     agent.add_tool(tool)
 
     # ツール呼び出しをシミュレート
-    result = ToolUtils.execute_tool(tool, {"query": "test", "count": 5})
+    result = await ToolUtils.execute_tool(tool, {"query": "test", "count": 5})
 
     assert result == {"result": "Tool executed with {'query': 'test', 'count': 5}"}
     assert tool.call_count == 1
     assert tool.last_args == {"query": "test", "count": 5}
 
 
-def test_execute_tool_with_different_params(agent):
+async def test_execute_tool_with_different_params(agent):
     """異なるパラメータでのツール実行テスト"""
     tool = MockTool()
 
-    ToolUtils.execute_tool(tool, {"query": "search1"})
-    ToolUtils.execute_tool(tool, {"query": "search2", "count": 10})
+    await ToolUtils.execute_tool(tool, {"query": "search1"})
+    await ToolUtils.execute_tool(tool, {"query": "search2", "count": 10})
 
     assert tool.call_count == 2
     assert tool.last_args == {"query": "search2", "count": 10}
@@ -205,7 +205,7 @@ def test_execute_tool_with_different_params(agent):
 # ===== ツール呼び出しハンドリングのテスト =====
 
 
-def test_handle_tools_call(agent, session):
+async def test_handle_tools_call(agent, session):
     """ツール呼び出しハンドリングテスト"""
     tool = MockTool(name="test_tool")
     agent.add_tool(tool)
@@ -217,7 +217,7 @@ def test_handle_tools_call(agent, session):
     response_init.is_message.return_value = True
     agent.llm_client.request.return_value = response_init
 
-    agent.run(session, "test")
+    await agent.run(session, "test")
 
     # ツール呼び出しをシミュレート
     tool_call = LLMMessageTool(
@@ -241,14 +241,14 @@ def test_handle_tools_call(agent, session):
 
     # handle_tools_callを実行
     messages = []
-    agent.handle_tools_call(session, messages, [tool_call])
+    await agent.handle_tools_call(session, messages, [tool_call])
 
     # ツールが実行されたか確認
     assert tool.call_count == 1
     assert tool.last_args == {"query": "search_query"}
 
 
-def test_handle_multiple_tool_calls(agent, session):
+async def test_handle_multiple_tool_calls(agent, session):
     """複数のツール呼び出しハンドリングテスト"""
     tool1 = MockTool(name="tool1")
     tool2 = MockTool(name="tool2")
@@ -262,7 +262,7 @@ def test_handle_multiple_tool_calls(agent, session):
     response_init.is_message.return_value = True
     agent.llm_client.request.return_value = response_init
 
-    agent.run(session, "test")
+    await agent.run(session, "test")
 
     # 複数のツール呼び出し
     tool_call1 = LLMMessageTool(
@@ -282,13 +282,13 @@ def test_handle_multiple_tool_calls(agent, session):
     agent.llm_client.request.side_effect = [response_final, response_final]
 
     messages = []
-    agent.handle_tools_call(session, messages, [tool_call1, tool_call2])
+    await agent.handle_tools_call(session, messages, [tool_call1, tool_call2])
 
     assert tool1.call_count == 1
     assert tool2.call_count == 1
 
 
-def test_tool_call_message_registration(agent, session):
+async def test_tool_call_message_registration(agent, session):
     """ツール呼び出しメッセージ登録テスト"""
     tool = MockTool(name="test_tool")
     agent.add_tool(tool)
@@ -300,7 +300,7 @@ def test_tool_call_message_registration(agent, session):
     response_init.is_message.return_value = True
     agent.llm_client.request.return_value = response_init
 
-    agent.run(session, "test")
+    await agent.run(session, "test")
 
     # ツール呼び出しを作成
     tool_call = LLMMessageTool(
@@ -323,7 +323,7 @@ def test_tool_call_message_registration(agent, session):
     assert messages[0].role == "assistant"
 
 
-def test_tool_call_result_message(agent, session):
+async def test_tool_call_result_message(agent, session):
     """ツール呼び出し結果メッセージテスト"""
     tool = MockTool(name="test_tool")
     agent.add_tool(tool)
@@ -335,7 +335,7 @@ def test_tool_call_result_message(agent, session):
     response_init.is_message.return_value = True
     agent.llm_client.request.return_value = response_init
 
-    agent.run(session, "test")
+    await agent.run(session, "test")
 
     # ツール呼び出し
     tool_call = LLMMessageTool(
@@ -351,7 +351,7 @@ def test_tool_call_result_message(agent, session):
     agent.llm_client.request.side_effect = [response_final]
 
     messages = []
-    agent._exec_tool_call(session, messages, tool_call)
+    await agent._exec_tool_call(session, messages, tool_call)
 
     # 結果メッセージが追加されたか確認
     assert len(messages) >= 1
@@ -360,7 +360,7 @@ def test_tool_call_result_message(agent, session):
 # ===== エラーハンドリング =====
 
 
-def test_tool_not_found_in_agent(agent, session):
+async def test_tool_not_found_in_agent(agent, session):
     """ツールが見つからない場合のエラーハンドリング"""
     tool = MockTool(name="existing_tool")
     agent.add_tool(tool)
@@ -372,7 +372,7 @@ def test_tool_not_found_in_agent(agent, session):
     response_init.is_message.return_value = True
     agent.llm_client.request.return_value = response_init
 
-    agent.run(session, "test")
+    await agent.run(session, "test")
 
     # 存在しないツールを呼び出し
     missing_tool_call = LLMMessageTool(
@@ -389,13 +389,13 @@ def test_tool_not_found_in_agent(agent, session):
 
     messages = []
     # ツール実行時のエラーをキャッチ
-    result = agent._exec_tool_call(session, messages, missing_tool_call)
+    result = await agent._exec_tool_call(session, messages, missing_tool_call)
 
     # エラーメッセージが含まれることを確認
     assert "error" in str(result.get_message()).lower() or result.is_message()
 
 
-def test_tool_execution_error(agent, session):
+async def test_tool_execution_error(agent, session):
     """ツール実行エラーテスト"""
     error_tool = ErrorTool()
     agent.add_tool(error_tool)
@@ -407,7 +407,7 @@ def test_tool_execution_error(agent, session):
     response_init.is_message.return_value = True
     agent.llm_client.request.return_value = response_init
 
-    agent.run(session, "test")
+    await agent.run(session, "test")
 
     LLMMessageTool(
         id="call_error",
@@ -423,7 +423,7 @@ def test_tool_execution_error(agent, session):
 
     # ツール実行エラーをキャッチ
     with pytest.raises(RuntimeError):
-        ToolUtils.execute_tool(error_tool, {})
+        await ToolUtils.execute_tool(error_tool, {})
 
 
 # ===== ツール出力のシリアライズテスト =====

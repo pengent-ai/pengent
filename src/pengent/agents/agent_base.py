@@ -1,5 +1,5 @@
 import uuid
-import time
+import asyncio
 import json
 from datetime import datetime
 
@@ -82,7 +82,7 @@ class AgentBase:
     # ----------------------------
     # Main Method
 
-    def run(
+    async def run(
         self,
         session: Session,
         input: Union[str, dict, AgentSendInput] = None,
@@ -105,9 +105,9 @@ class AgentBase:
         # LLMクライアントにシステムプロンプトを指定する
         self.llm_client.system_prompt = self.system_prompt
 
-        return self.send(input, session, ctx, **kwargs)
+        return await self.send(input, session, ctx, **kwargs)
 
-    def send(
+    async def send(
         self,
         input: Union[str, dict, AgentSendInput] = None,
         session: Session = None,
@@ -159,7 +159,7 @@ class AgentBase:
             _message = LLMMessage.create_user_message(text)
             messages.append(_message)
             response = self.llm_client.request(messages=session.events.get() + messages)
-            return self.receive_message(session, response, messages, context=ctx)
+            return await self.receive_message(session, response, messages, context=ctx)
 
         except Exception as e:
             self.logger.exception(f"send message Error: {e}")
@@ -167,7 +167,7 @@ class AgentBase:
         finally:
             self.logger.debug("send message end.")
 
-    def receive_message(
+    async def receive_message(
         self,
         session: Session,
         response: LLMResponse,
@@ -178,18 +178,42 @@ class AgentBase:
         """
         エージェントが受信したメッセージを処理するメソッド
         """
-        # ツールが呼ばれていないか確認する
-        tools = response.get_tools()
-        if tools:
-            response = self.handle_tools_call(session, messages, tools, context=context)
+        max_tool_call_count = self.params.get("max_tool_call_count", 10)
+        tool_call_count = 0
 
-        # メッセージを確認する
-        if not response.is_message():
+        while True:
+            tools = response.get_tools()
+            if tools:
+                tool_call_count += 1
+                if (
+                    max_tool_call_count is not None
+                    and max_tool_call_count > 0
+                    and tool_call_count > max_tool_call_count
+                ):
+                    self.logger.error(
+                        "receive_message Error: tool call limit exceeded. "
+                        f"count={tool_call_count}, max={max_tool_call_count}, response={response}"
+                    )
+                    raise ValueError(
+                        "tool call limit exceeded. "
+                        f"count={tool_call_count}, max={max_tool_call_count}"
+                    )
+                response = await self.handle_tools_call(
+                    session,
+                    messages,
+                    tools,
+                    context=context,
+                )
+                continue
+
+            if response.is_message():
+                break
+
             # メッセージがない場合は、エラーを返す
             self.logger.error(f"receive_message Error: {response}")
             raise ValueError("no message.")
 
-        response, output = self._with_retry(session, response, messages)
+        response, output = await self._with_retry(session, response, messages)
         _message = LLMMessage.create_assistant_message(output.message)
         messages.append(_message)
 
@@ -203,7 +227,7 @@ class AgentBase:
         _message = LLMMessage.create_tools_call(tools)
         messages.append(_message)
 
-    def _exec_tool_call_response(
+    async def _exec_tool_call_response(
         self,
         session: Session,
         result: Union[str, dict, list],
@@ -217,7 +241,7 @@ class AgentBase:
         response = self.llm_client.request(messages=session.events.get() + messages)
         return response
 
-    def _exec_tool_call(
+    async def _exec_tool_call(
         self,
         session: Session,
         messages: list[LLMMessage],
@@ -236,14 +260,14 @@ class AgentBase:
         if not tool_base:
             result = json.dumps({"error": f"Tool Not Found in Agent: {name}"})
         else:
-            result = ToolUtils.execute_tool(
+            result = await ToolUtils.execute_tool(
                 tool_base,
                 tool.function.arguments,
                 context=context,
             )
-        return self._exec_tool_call_response(session, result, messages, tool)
+        return await self._exec_tool_call_response(session, result, messages, tool)
 
-    def handle_tools_call(
+    async def handle_tools_call(
         self,
         session: Session,
         messages: list[LLMMessage],
@@ -254,7 +278,9 @@ class AgentBase:
         self.logger.debug(f"handle_tools_call receive tools: {tools}")
         self._register_tools_call(messages, tools)
         for tool in tools:
-            response = self._exec_tool_call(session, messages, tool, context=context)
+            response = await self._exec_tool_call(
+                session, messages, tool, context=context
+            )
 
         return response
 
@@ -281,7 +307,7 @@ class AgentBase:
 
         return output
 
-    def _with_retry(
+    async def _with_retry(
         self,
         session: Session,
         response: LLMResponse,
@@ -315,7 +341,7 @@ class AgentBase:
                     )
                 )
                 if attempt < max_retries - 1:
-                    time.sleep(retry_delay_sec)
+                    await asyncio.sleep(retry_delay_sec)
                     response = self.llm_client.request(
                         messages=session.events.get() + messages
                     )

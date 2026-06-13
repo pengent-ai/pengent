@@ -1,6 +1,7 @@
 from copy import deepcopy
 import inspect
 import re
+from types import SimpleNamespace
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import (
@@ -281,6 +282,11 @@ class ToolContext:
             _state_delta=context._state_delta,
             _artifact_service=context._artifact_service,
         )
+
+    @property
+    def session(self) -> SimpleNamespace:
+        """session.id でもアクセスできるようにする互換プロパティ"""
+        return SimpleNamespace(id=self.session_id)
 
     def get_state_delta(self) -> Optional[dict]:
         """状態の変更点を取得するメソッド"""

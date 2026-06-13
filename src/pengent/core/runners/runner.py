@@ -1,3 +1,4 @@
+import asyncio
 from typing import Union
 from ...agents import AgentBase
 from ...workers import WorkerBase
@@ -33,7 +34,31 @@ class Runner:
         **kwargs,
     ) -> AgentSendOutput:
         """
-        エージェントを実行する
+        エージェントを実行する（同期ラッパー）
+
+        Args:
+            user_id (str): ユーザーID
+            session_id (str): セッションID
+            input (str): エージェントへの入力
+        Returns:
+            output: エージェントの出力
+        """
+        return asyncio.run(
+            self.run_async(
+                user_id=user_id, session_id=session_id, input=input, **kwargs
+            )
+        )
+
+    async def run_async(
+        self,
+        *,
+        user_id: str,
+        session_id: str,
+        input: str,
+        **kwargs,
+    ) -> AgentSendOutput:
+        """
+        エージェントを実行する（非同期）
 
         Args:
             user_id (str): ユーザーID
@@ -54,7 +79,7 @@ class Runner:
             )
 
         # エージェントに入力を送信し、出力を取得
-        output = self.agent.run(
+        output = await self.agent.run(
             session=session,
             input=input,
             **kwargs,

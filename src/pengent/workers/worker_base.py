@@ -52,7 +52,7 @@ class WorkerBase:
         """ポリシーを設定する"""
         self.policy = policy
 
-    def run(
+    async def run(
         self,
         session: Session,
         ctx: Optional[ExecutionContext] = None,
@@ -66,9 +66,9 @@ class WorkerBase:
             tool_bases: list[ToolBase] = ToolUtils.normalize_tools(self.tools)
             self._tool_map = {tool.name: tool for tool in tool_bases}
 
-        return self.send(input, session, ctx, **kwargs)
+        return await self.send(input, session, ctx, **kwargs)
 
-    def send(
+    async def send(
         self,
         input: Union[str, dict, AgentSendInput] = None,
         session: Session = None,
@@ -121,7 +121,7 @@ class WorkerBase:
                 messages=session.events.get() + messages,
                 context=ctx,
             )
-            return self.receive_message(session, response, messages, context=ctx)
+            return await self.receive_message(session, response, messages, context=ctx)
 
         except Exception as e:
             self.logger.exception(f"send message Error: {e}")
@@ -129,7 +129,7 @@ class WorkerBase:
         finally:
             self.logger.debug("send message end.")
 
-    def receive_message(
+    async def receive_message(
         self,
         session: Session,
         response: LLMResponse,
@@ -140,13 +140,37 @@ class WorkerBase:
         """
         エージェントが受信したメッセージを処理するメソッド
         """
-        # ツールが呼ばれていないか確認する
-        tools = response.get_tools()
-        if tools:
-            response = self.handle_tools_call(session, messages, tools, context=context)
+        max_tool_call_count = self.params.get("max_tool_call_count", 10)
+        tool_call_count = 0
 
-        # メッセージを確認する
-        if not response.is_message():
+        while True:
+            tools = response.get_tools()
+            if tools:
+                tool_call_count += 1
+                if (
+                    max_tool_call_count is not None
+                    and max_tool_call_count > 0
+                    and tool_call_count > max_tool_call_count
+                ):
+                    self.logger.error(
+                        "receive_message Error: tool call limit exceeded. "
+                        f"count={tool_call_count}, max={max_tool_call_count}, response={response}"
+                    )
+                    raise ValueError(
+                        "tool call limit exceeded. "
+                        f"count={tool_call_count}, max={max_tool_call_count}"
+                    )
+                response = await self.handle_tools_call(
+                    session,
+                    messages,
+                    tools,
+                    context=context,
+                )
+                continue
+
+            if response.is_message():
+                break
+
             # メッセージがない場合は、エラーを返す
             self.logger.error(f"receive_message Error: {response}")
             raise ValueError("no message.")
@@ -159,7 +183,7 @@ class WorkerBase:
         self.logger.debug(f"receive_message end. {output}")
         return self.handler_message(messages, output, context=context)
 
-    def _exec_tool_call_worker_response(
+    async def _exec_tool_call_worker_response(
         self,
         session: Session,
         result: Union[str, dict, list],
@@ -179,7 +203,7 @@ class WorkerBase:
         )
         return response
 
-    def _exec_tool_call(
+    async def _exec_tool_call(
         self,
         session: Session,
         messages: list[LLMMessage],
@@ -198,16 +222,16 @@ class WorkerBase:
         if not tool_base:
             result = json.dumps({"error": f"Tool Not Found in Agent: {name}"})
         else:
-            result = ToolUtils.execute_tool(
+            result = await ToolUtils.execute_tool(
                 tool_base,
                 tool.function.arguments,
                 context=context,
             )
-        return self._exec_tool_call_worker_response(
+        return await self._exec_tool_call_worker_response(
             session, result, messages, tool, context=context
         )
 
-    def handle_tools_call(
+    async def handle_tools_call(
         self,
         session: Session,
         messages: list[LLMMessage],
@@ -222,7 +246,9 @@ class WorkerBase:
         messages.append(_message)
 
         for tool in tools:
-            response = self._exec_tool_call(session, messages, tool, context=context)
+            response = await self._exec_tool_call(
+                session, messages, tool, context=context
+            )
 
         return response
 

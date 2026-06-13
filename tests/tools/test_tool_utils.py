@@ -171,7 +171,7 @@ class TestToolUtils:
         assert len(result) == 0
         assert result == []
 
-    def test_execute_tool_success(self):
+    async def test_execute_tool_success(self):
         """execute_toolメソッドの成功ケーステスト"""
         # Arrange
         mock_tool = MagicMock(spec=ToolBase)
@@ -179,26 +179,26 @@ class TestToolUtils:
         arguments = {"param1": "value1", "param2": "value2"}
 
         # Act
-        result = ToolUtils.execute_tool(mock_tool, arguments)
+        result = await ToolUtils.execute_tool(mock_tool, arguments)
 
         # Assert
         mock_tool.run.assert_called_once_with(param1="value1", param2="value2")
         assert result == "execution_result"
 
-    def test_execute_tool_with_no_arguments(self):
+    async def test_execute_tool_with_no_arguments(self):
         """引数なしでexecute_toolを実行するテスト"""
         # Arrange
         mock_tool = MagicMock(spec=ToolBase)
         mock_tool.run.return_value = "result"
 
         # Act
-        result = ToolUtils.execute_tool(mock_tool, {})
+        result = await ToolUtils.execute_tool(mock_tool, {})
 
         # Assert
         mock_tool.run.assert_called_once_with()
         assert result == "result"
 
-    def test_execute_tool_with_exception(self):
+    async def test_execute_tool_with_exception(self):
         """execute_toolで例外が発生することのテスト"""
         # Arrange
         mock_tool = MagicMock(spec=ToolBase)
@@ -206,7 +206,7 @@ class TestToolUtils:
 
         # Act & Assert
         with pytest.raises(RuntimeError, match="Tool execution failed"):
-            ToolUtils.execute_tool(mock_tool, {})
+            await ToolUtils.execute_tool(mock_tool, {})
 
 
 class TestFunctionToolDecorator:
