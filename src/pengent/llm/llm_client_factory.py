@@ -36,6 +36,9 @@ class LLMClientFactory:
     @staticmethod
     def create_from_model(model_name: str, **kwargs) -> LLMClientBase:
         if model_name in [
+            "gpt-6-luna",
+            "gpt-6.1-sol",
+            "gpt-6-astra",
             "gpt-5-mini",
             "gpt-4.1-mini",
             "gpt-4.1",
@@ -44,12 +47,18 @@ class LLMClientFactory:
         ]:
             return LLMOpenAIClient(model_name=model_name, **kwargs)
         elif model_name in [
+            "claude-haiku-4-5-20251001",
+            "claude-fable-5-1",
+            "claude-opus-5-5",
+            "claude-sonnet-5-5",
             "claude-3-5-haiku-20241022",
             "claude-sonnet-4-20250514",
             "claude-opus-4-20250514",
         ]:
             return LLMAnthropicClient(model_name=model_name, **kwargs)
         elif model_name in [
+            "gemini-3.8-flash",
+            "gemini-3.1-pro-preview",
             "gemini-2.5-pro",
             "gemini-2.5-flash",
             "gemini-2.5-flash-lite",

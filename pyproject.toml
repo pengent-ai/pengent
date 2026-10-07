@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 [project]
 name = "pengent"
-version = "1.2.2"
+version = "1.2.3"
 description = "Genaral AI Angent Framework for Python"
 authors = [
     { name = "ryoh Ya", email = "dev.p.ry.yamafuji@gmail.com" },

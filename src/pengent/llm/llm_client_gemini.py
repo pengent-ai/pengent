@@ -18,7 +18,7 @@ class LLMGeminiClient(LLMClientBase):
     Gemini LLMクライアントクラス
     """
 
-    def __init__(self, model_name="gemini-2.5-flash", temperature=0.0, config=None):
+    def __init__(self, model_name="gemini-3.8-flash", temperature=0.0, config=None):
         """
         コンストラクタ
 
@@ -69,8 +69,15 @@ class LLMGeminiClient(LLMClientBase):
             )
 
         if self.response_schema:
-            if self.model_name not in ["gemini-2.5-flash"]:
-                ValueError("Response Json Format is not supported for this model.")
+            supported_models = [
+                "gemini-2.5-flash",
+                "gemini-3.5-flash",
+                "gemini-3.8-flash",
+            ]
+            if self.model_name not in supported_models:
+                raise ValueError(
+                    "Response Json Format is not supported for this model."
+                )
 
             self.logger.debug(f"response_schema: {self.response_schema}")
 

@@ -38,7 +38,7 @@ class LLMOpenAIBatchClient(LLMBatchBase):
 
     API_KEY = os.getenv("OPENAI_API_KEY")
 
-    def __init__(self, model_name="gpt-5-mini", temperature=0.0, config=None):
+    def __init__(self, model_name="gpt-6-luna", temperature=0.0, config=None):
         super().__init__(
             model_name,
             temperature,

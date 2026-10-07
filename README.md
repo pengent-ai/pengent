@@ -9,6 +9,12 @@ ChatGPT・Claude・GeminiなどのLLMと、ツール実行やルール処理を�
 
 * 複数のLLMに対応：OpenAI / Claude / Gemini など、用途に応じて使い分け可能
 
+### v1.2.3 デフォルトモデル
+
+* OpenAI: `gpt-6-luna`
+* Anthropic: `claude-haiku-4-5-20251001`
+* Gemini: `gemini-3.8-flash`
+
 ## Usecase
 
 * SlackやLINE BotなどチャットからAIで自動対応したい

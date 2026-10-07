@@ -17,7 +17,7 @@ class LLMOpenAIClient(LLMClientBase):
     OpenAI LLMクライアントクラス
     """
 
-    def __init__(self, model_name="gpt-5-mini", temperature=0.0, config=None):
+    def __init__(self, model_name="gpt-6-luna", temperature=0.0, config=None):
         super().__init__(
             model_name,
             temperature,
@@ -95,8 +95,9 @@ class LLMOpenAIClient(LLMClientBase):
         # self.config.get("response_format")
         #     self.client.beta.chat.completions.parse()を使わないとならない
 
-        if self.model_name in ["gpt-5-mini", "gpt-5"]:
-            # gpt-5-miniはtemperature、max_tokensをサポートしない
+        if self.model_name in ["gpt-5-mini", "gpt-5", "gpt-6-luna"]:
+            # gpt-5-mini、gpt-5、gpt-6-luna(reasoning.effort=medium時)は
+            # temperature、max_tokensをサポートしない
             response = self.client.chat.completions.create(
                 model=self.model_name, messages=msg_temp, **kws
             )

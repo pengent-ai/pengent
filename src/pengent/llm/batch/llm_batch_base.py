@@ -105,13 +105,13 @@ class LLMBatchData:
             },
         }
         if (
-            self.model_name not in ["gpt-5-mini", "gpt-5"]
+            self.model_name not in ["gpt-5-mini", "gpt-5", "gpt-6-luna"]
             and self.temperature is not None
         ):
             ret["body"]["temperature"] = self.temperature
 
         if (
-            self.model_name not in ["gpt-5-mini", "gpt-5"]
+            self.model_name not in ["gpt-5-mini", "gpt-5", "gpt-6-luna"]
             and self.max_tokens is not None
         ):
             ret["body"]["max_tokens"] = self.max_tokens

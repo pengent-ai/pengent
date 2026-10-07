@@ -1,4 +1,5 @@
 import pytest
+import inspect
 from unittest.mock import AsyncMock, MagicMock, patch
 from pengent.tools.mcp.mcp_tool_package import McpToolPackage, McpTool
 from pengent.tools.mcp.mcp_client import ModelContextProtocolClient
@@ -103,7 +104,13 @@ class TestMcpTool:
         mock_client = MagicMock(spec=ModelContextProtocolClient)
         meta_data = {"name": "test_tool"}
         tool = McpTool(mock_client, meta_data)
-        mock_asyncio_run.return_value = "result"
+
+        def _fake_asyncio_run(coro):
+            if inspect.iscoroutine(coro):
+                coro.close()
+            return "result"
+
+        mock_asyncio_run.side_effect = _fake_asyncio_run
 
         # Act
         result = tool.run(param1="value1", param2="value2")
@@ -337,7 +344,13 @@ class TestMcpToolPackage:
             sync_connect=False,
         )
         package.mcp_data.status = "active"
-        mock_asyncio_run.return_value = "tool_result"
+
+        def _fake_asyncio_run(coro):
+            if inspect.iscoroutine(coro):
+                coro.close()
+            return "tool_result"
+
+        mock_asyncio_run.side_effect = _fake_asyncio_run
 
         # Act
         result = package.call_tool("test_tool", {"param": "value"})
@@ -481,6 +494,12 @@ class TestMcpToolPackage:
             args=[],
             sync_connect=False,
         )
+
+        def _fake_asyncio_run(coro):
+            if inspect.iscoroutine(coro):
+                coro.close()
+
+        mock_asyncio_run.side_effect = _fake_asyncio_run
 
         # Act
         package.connect_sync()

@@ -1,6 +1,14 @@
 
 # Changelog
 
+## [1.2.3] - 2026-10-07
+
+### Changed
+- LLM モデルのバージョンを更新
+- テストコードを修正し、`asyncio.run` モック時の未 await コルーチン警告 (`RuntimeWarning`) を解消
+
+---
+
 ## [1.2.2] - 2026-06-14
 
 ### Added

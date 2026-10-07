@@ -3,6 +3,11 @@
 * Batchで実行すると半額になる
 * OpenAI社とAnthropic社のLLMが対応している
 
+## デフォルトモデル (v1.2.3)
+
+* OpenAI Batch: `gpt-6-luna`
+* Anthropic Batch: `claude-haiku-4-5-20251001`
+
 
 ## 仕様
 

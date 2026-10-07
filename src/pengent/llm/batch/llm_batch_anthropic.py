@@ -36,7 +36,7 @@ class LLMAnthropicBatchClient(LLMBatchBase):
     VERSION = os.getenv("CLAUDE_AI_VERSION", "2023-06-01")
 
     def __init__(
-        self, model_name="claude-3-5-haiku-20241022", temperature=0.0, config=None
+        self, model_name="claude-haiku-4-5-20251001", temperature=0.0, config=None
     ):
         super().__init__(
             model_name, temperature, config, llm_type=LLMClientType.ANTHROPIC.value
